@@ -72,7 +72,7 @@ let ntnsfw = JSON.parse(fs.readFileSync('./database/nsfw.json'));
 let ntvirtex = JSON.parse(fs.readFileSync('./database/antivirus.json'));
 let nttoxic = JSON.parse(fs.readFileSync('./database/antitoxic.json'));
 let ntwame = JSON.parse(fs.readFileSync('./database/antiwame.json'));
-let ntlinkgc =JSON.parse(fs.readFileSync('./database/antilinkgc.json'));
+let ntlinkgc =JSON.parse(fs.readFileSync('./database/antilink.json'));
 let ntilinkall =JSON.parse(fs.readFileSync('./database/antilinkall.json'));
 let ntilinktwt =JSON.parse(fs.readFileSync('./database/antilinktwitter.json'));
 let ntilinktt =JSON.parse(fs.readFileSync('./database/antilinktiktok.json'));
@@ -123,6 +123,7 @@ const messagesD = body.slice(0).trim().split(/ +/).shift().toLowerCase()
 const type = Object.keys(mek.message)[0]  
 const from = mek.key.remoteJid      
 const content = JSON.stringify(mek.message)
+
 
 	    const cekUser = (users, id) => {     
 var cek = null
@@ -413,6 +414,19 @@ let buttonMessage = {
             }
         }
         
+        // Response 
+if (!isCmd && isGroup && isAlreadyResponList(from, chats, db_respon_list)) {
+var get_data_respon = getDataResponList(from, chats, db_respon_list)
+if (get_data_respon.isImage === false) {
+conn.sendMessage(from, { text: sendResponList(from, chats, db_respon_list) }, {
+quoted: msg
+})
+} else {
+conn.sendMessage(from, { image: await getBuffer(get_data_respon.image_url), caption: get_data_respon.response }, {
+quoted: msg
+})
+}
+}
         // Anti Link
         if (Antilinkgc) {
         if (budy.match(`chat.whatsapp.com`)) {
@@ -420,9 +434,9 @@ let buttonMessage = {
         let gclink = (`https://chat.whatsapp.com/`+await XeonBotInc.groupInviteCode(m.chat))
         let isLinkThisGc = new RegExp(gclink, 'i')
         let isgclink = isLinkThisGc.test(m.text)
-        if (isgclink) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Group Link Detected 」\`\`\`\n\nYou won't be kicked by a bot because what you send is a link to this group`})
-        if (isAdmins) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Group Link Detected 」\`\`\`\n\nAdmin has sent a link, admin is free to post any link`})
-        if (isCreator) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Group Link Detected 」\`\`\`\n\nOwner has sent a link, owner is free to post any link`})
+        if (isgclink) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Antilink Group Terdektesi 」\`\`\`\n\nAnda tidak akan dikeluarkan oleh bot karena apa yang Anda kirim adalah link group ini`})
+        if (isAdmins) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Antilink Group Terdektesi 」\`\`\`\n\nAdmin telah mengirim link group, Maaf kak Kamu admin Tidak Akan di keluarkan`})
+        if (isCreator) return XeonBotInc.sendMessage(m.chat, {text: `\`\`\`「 Antilink Group Terdektesi 」\`\`\`\n\Owner telah mengirim link group, Eh Maaf Kamu Owner Aku Kamu Tidak Akan di Keluarkan`})
         await XeonBotInc.sendMessage(m.chat,
 			    {
 			        delete: {
@@ -1182,7 +1196,7 @@ Cieeee, What's Going On❤️💖👀`
 		await XeonBotInc.groupParticipantsUpdate(m.chat, [users], 'remove').then((res) => m.reply(jsonformat(res))).catch((err) => m.reply(jsonformat(err)))
 	}
 	break
-	case 'add': {
+	case '- - -': {
 		if (!m.isGroup) throw mess.group
                 if (!isBotAdmins) throw mess.botAdmin
                 if (!isAdmins) throw mess.admin
@@ -1555,7 +1569,7 @@ break
             case 'delete': case 'del': {
                 if (!m.quoted) throw false
                 let { chat, fromMe, id, isBaileys } = m.quoted
-                if (!isBaileys) throw 'The message was not sent by a bot!'
+                if (!isBaileys) throw 'Hanya Bisa Menghapus Pesan Dari Bot!'
                 XeonBotInc.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: true, id: m.quoted.id, participant: m.quoted.sender } })
             }
             break
@@ -1565,7 +1579,7 @@ break
                let me = m.sender
                let pjtxt = `Message From : @${me.split('@')[0]} \nFor : @${ownernya.split('@')[0]}\n\n${text}`
                let ments = [ownernya, me]
-               let buttons = [{ buttonId: 'hehehe', buttonText: { displayText: '🙏THANKS FOR THE REPORT' }, type: 1 }]
+               let buttons = [{ buttonId: 'hehehe', buttonText: { displayText: '🙏MAKASIH SUDAH REPORT' }, type: 1 }]
             await XeonBotInc.sendButtonText(ownernya, buttons, pjtxt, botname, m, {mentions: ments})
             let akhji = `Report Sent\nTo Owner @${ownernya.split('@')[0]}\n*Thank you for the report🙏*\n_Your number will be blocked_\n_If the Report is Only Created_`
             await XeonBotInc.sendButtonText(m.chat, buttons, akhji, botname, m, {mentions: ments})
@@ -1602,9 +1616,9 @@ await XeonBotInc.sendMessage(i, { video:media,  caption: txt, mentions:participa
         m.reply(`Successfuly Broadcasted in ${xeoncast.length} Groups`)      
         break
             case 'q': case 'quoted': {
-		if (!m.quoted) return m.reply('Reply Message!!')
+		if (!m.quoted) return m.reply('Reply pesannya!!')
 		let wokwol = await XeonBotInc.serializeM(await m.getQuotedObj())
-		if (!wokwol.quoted) return m.reply('The message you replied to does not contain a reply')
+		if (!wokwol.quoted) return m.reply('Pesan yang Anda balas tidak berisi balasan')
 		await wokwol.quoted.copyNForward(m.chat, true)
             }
 	    break
@@ -1642,12 +1656,12 @@ case 'sticker': case 's': case 'stickergif': case 'sgif': {
                 let encmedia = await XeonBotInc.sendImageAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
                 await fs.unlinkSync(encmedia)
             } else if (/video/.test(mime)) {
-                if ((quoted.msg || quoted).seconds > 11) return m.reply('*Maximum 10 seconds!*')
+                if ((quoted.msg || quoted).seconds > 11) return m.reply('*Maximum 10 detik!*')
                 let media = await quoted.download()
                 let encmedia = await XeonBotInc.sendVideoAsSticker(m.chat, media, m, { packname: global.packname, author: global.author })
                 await fs.unlinkSync(encmedia)
             } else {
-                throw `*Send Image/Video With Caption* ${prefix + command}\nDuration *Video 1-9 Seconds*`
+                throw `*kirimkan Image/Video dengan caption* ${prefix + command}\nDuration *Video 1-9 detik*`
                 }
             }
             break
@@ -2949,17 +2963,17 @@ XeonBotInc.sendMessage(from,{image:{url:anubit8}, caption:"Here you go!"},{quote
 break
 case 'tiktok':{ 
 if (!text) return m.reply( `Example : ${prefix + command} link`)
-if (!q.includes('tiktok')) return m.reply(`Link Invalid!!`)
+if (!q.includes('tiktok')) return m.reply(`Link Salah!!`)
 m.reply(mess.wait)
 require('./lib/tiktok').Tiktok(q).then( data => {
     var button = [{ buttonId: `tiktokaudio ${q}`, buttonText: { displayText: `AUDIO‡` }, type: 1 }, { buttonId: `menu`, buttonText: { displayText: `Menu` }, type: 1 }]
-XeonBotInc.sendMessage(m.chat, { caption: `Here you go!`, video: { url: data.watermark }, buttons: button, footer: botname, mentions: [sender] })
+XeonBotInc.sendMessage(m.chat, { caption: `Jangan Lupa Bilang Makasih !`, video: { url: data.watermark }, buttons: button, footer: botname, mentions: [sender] })
 })
 }
 break
 case 'tiktokaudio':{
 if (!text) return m.reply( `Example : ${prefix + command} link`)
-if (!q.includes('tiktok')) return m.reply(`Link Invalid!!`)
+if (!q.includes('tiktok')) return m.reply(`Link Salah!!`)
 m.reply(mess.wait)
 require('./lib/tiktok').Tiktok(q).then( data => {
 XeonBotInc.sendMessage(m.chat, { audio: { url: data.audio }, mimetype: 'audio/mp4' }, { quoted: m })
@@ -3443,20 +3457,20 @@ XeonBotInc.sendContact(m.chat, owner, m)
 			case 'confes':
 			case 'confess':
 				if (m.isGroup) return m.reply(mess.group)
-				if (!text) return m.reply(`*How to use?*\n\Send command ${prefix + command} number|sender|message\n\nExample ${prefix + command} 91xxxxxxxxxx|handsome here|I have a crush on you\n\nExample 2 : ${prefix + command} 91xxxxxxxxxx|ur crush|I have a crush on you\n\nDon't worry, privacy is safe><`)
+				if (!text) return m.reply(`*How to use?*\n\Send command ${prefix + command} number|sender|message\n\nExample ${prefix + command} 62xxxxxxxxxx|nama pengirim pesan|pesan yang mau lu kirim\n\nExample 2 : ${prefix + command} 62xxxxxxxxxx|nama pengirim|pesan yang lu mau kirim\n\nDon't worry, privacy is safe><`)
 				let nomor = q.split('|')[0] ? q.split('|')[0] : q
 				let saking = q.split('|')[1] ? q.split('|')[1] : q
 				let pesan = q.split('|')[2] ? q.split('|')[2] : ''
-				if (pesan.length < 1) return m.reply(`All must be filled in! eg : confess 91xxxxxxxxxx|from|hello dude`)
+				if (pesan.length < 1) return m.reply(`All must be filled in! eg : confess 62xxxxxxxxxx|nama|pesan nya`)
 				 let teksnya = `Hi friend, there is confess message for you!!\n\nFrom :  _${saking}_  \nMessage : _${pesan}_ `
 					gambar = `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMkjAJhYezm4h6k1AJ6qfreGkaRdBcR7UHMw&usqp=CAU`
 				 var button = [{ buttonId: `menfesconfirm`, buttonText: { displayText: `CONFIRM‡` }, type: 1 }, { buttonId: `menu`, buttonText: { displayText: `Menu` }, type: 1 }]
 					XeonBotInc.sendMessage(`${nomor}@s.whatsapp.net`, { caption: teksnya, image: {url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMkjAJhYezm4h6k1AJ6qfreGkaRdBcR7UHMw&usqp=CAU`}, buttons: button, footer: botname })
-				m.reply(`Success Sending Menfess!!`)
+				m.reply(`Sukses Kirim Menfess!!`)
 				break
 			case 'menfesconfirm':{
  				 XeonBotInc.sendMessage(q, {text: `It's been confirmed, Confess🌹`})
-				  m.reply(`Thank you confess for being accepted.`)
+				  m.reply(`Terima kasih sudah menerima pesan ini.`)
 				}
 				break
 case 'anonymous': {
@@ -3583,7 +3597,7 @@ case 'keluar': case 'leave': {
                 m.reply('*Successful in Changing To Self Usage*')
             }
             break
-            case 'ping': case 'botstatus': case 'statusbot': case 'p': {
+            case 'ping': case 'botstatus': case 'statusbot': {
                 const used = process.memoryUsage()
                 const cpus = os.cpus().map(cpu => {
                     cpu.total = Object.keys(cpu.times).reduce((last, type) => last + cpu.times[type], 0)
@@ -4229,28 +4243,28 @@ m.reply('Success in turning off antiwame in this group')
   }
   }
   break
-case 'antilinkgc': {
+case 'antilink': {
 if (!m.isGroup) return m.reply(mess.group)
 if (!isBotAdmins) return m.reply(mess.botAdmin)
 if (!isAdmins && !isCreator) return m.reply(mess.admin)
 if (args[0] === "on") {
-if (Antilinkgc) return m.reply('Already activated')
+if (Antilinkgc) return m.reply('Sudah Di Aktifkan Sebelum Nya !')
 ntlinkgc.push(from)
-fs.writeFileSync('./database/antilinkgc.json', JSON.stringify(ntlinkgc))
-m.reply('Success in turning on antiwame in this group')
+fs.writeFileSync('./database/antilink.json', JSON.stringify(ntlinkgc))
+m.reply('Antilink Berhasil Di Aktifkan')
 var groupe = await XeonBotInc.groupMetadata(from)
 var members = groupe['participants']
 var mems = []
 members.map(async adm => {
 mems.push(adm.id.replace('c.us', 's.whatsapp.net'))
 })
-XeonBotInc.sendMessage(from, {text: `\`\`\`「 ⚠️Warning⚠️ 」\`\`\`\n\nNobody is allowed to send group link in this group, one who sends will be kicked immediately!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
+XeonBotInc.sendMessage(from, {text: `\`\`\`「 ⚠️Warning⚠️ 」\`\`\`\n\nTidak Ada seorang pun yang diizinkan mengirimkan link grup di grup ini, siapa yang mengirim akan segera dikeluarkan!`, contextInfo: { mentionedJid : mems }}, {quoted:m})
 } else if (args[0] === "off") {
-if (!Antilinkgc) return m.reply('Already deactivated')
+if (!Antilinkgc) return m.reply('Sudah Di Nonaktifkan Sebelum nya !')
 let off = ntlinkgc.indexOf(from)
 ntlinkgc.splice(off, 1)
 fs.writeFileSync('./database/antilinkgc.json', JSON.stringify(ntlinkgc))
-m.reply('Success in turning off antiwame in this group')
+m.reply('Antilink Berhasil Di Nonaktifkan')
 } else {
   let buttonsntwame = [
   { buttonId: `${command} on`, buttonText: { displayText: 'On' }, type: 1 },
@@ -7470,14 +7484,163 @@ case 'textshot': {
             break
 //------------------------The End----------------------\\
 
-case 'tqtt': 
+case 'tqto': 
 throw `Thanks to
-LORD BUDDHA
 Xeon (Me)
+Jer (Me)
 My family
 And all friends who helped assemble this sexy script !!!`
 break
-case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
+
+// Menu Store
+case prefix+'list':
+if (!m.isGroup) return reply(mess.group)
+if (!m.isGroup) return reply(mess.OnlyGrup)
+if (db_respon_list.length === 0) return reply(`Belum ada list message di database`)
+if (!isAlreadyResponListGroup(from, db_respon_list)) return reply(`Belum ada list message yang terdaftar di group ini`)
+var arr_rows = [];
+for (let x of db_respon_list) {
+	if (x.id === from) {
+		arr_rows.push({
+			title: x.key,
+			rowId: x.key
+			})
+		}
+	}
+const listMessage = {
+	text: `${ucapanWaktu} ${pushname} \n\nBerikut Adalah List Item\nSilahkan Pilih Salah Satu!\n Tanggal : ${tanggal}\n Jam : ${moment().format("HH:mm:ss z")} `,
+	footer: "Powered By @JER",
+	buttonText: "Click Here!",
+	sections: [{
+		title: groupName, rows: arr_rows
+		}],
+		listType: 1
+}
+
+const sendMsg = await Manik.sendMessage(m.chat, listMessage)
+break
+case prefix+'addlist':
+if (!m.isGroup) return reply(mess.group)
+if (!m.isGroup) return reply(mess.OnlyGrup)
+            if (!isAdmins && !isXeonBotInc) return reply('Only Admins')
+            var args1 = text.split("@")[0]
+            var args2 = text.split("@")[1]                
+            if (!q.includes("@")) return reply(`Gunakan dengan cara ${command.slice(1)} *Nama Item@Item*\n\n_Contoh_\n\n${command.slice(1)} Dm Ml@List`)
+            if (isAlreadyResponList(from, args1, db_respon_list)) return reply(`List respon dengan key : *${args1}* sudah ada di group ini.`)
+            if (/image/.test(mime)) {
+              let media = await Manik.downloadAndSaveMediaMessage(m.message.imageMessage || m.message.extendedTextMessage?.contextInfo.quotedMessage.imageMessage, 'image')
+                const fd = new FormData();
+                fd.append('file', fs.readFileSync(media), '.tmp', '.jpg')
+                fetch('https://telegra.ph/upload', {
+                    method: 'POST',
+                    body: fd
+                }).then(res => res.json())
+                    .then((json) => {
+                        addResponList(from, args1, args2, true, `https://telegra.ph${json[0].src}`, db_respon_list)
+                        reply(`Sukses set list message dengan key : *${args1}*`)
+                        if (fs.existsSync(media)) fs.unlinkSync(media)
+                        })
+                } else {
+                	addResponList(from, args1, args2, false, '-', db_respon_list)
+                reply(`Sukses set list message dengan key : *${args1}*`)
+                }
+            break
+        case prefix+'dellist':
+        if (!m.isGroup) return reply(mess.group)
+            if (!m.isGroup) return reply(mess.OnlyGrup)
+            if (!isAdmins && !isXeonBotInc) return reply('Only Admins')
+            if (db_respon_list.length === 0) return reply(`Belum ada list message di database`)
+            if (!q) return reply(`Gunakan dengan cara ${command.slice(1)} *Nama Item*\n\n_Contoh_\n\n${command.slice(1)} Dm Ml`)
+            if (!isAlreadyResponList(from, q, db_respon_list)) return reply(`List Item dengan Nama *${q}* tidak ada di database!`)
+            delResponList(from, q, db_respon_list)
+            reply(`Sukses delete list message dengan key *${q}*`)
+            break
+        case prefix+'update': case prefix+'change':
+            if (!m.isGroup) return reply(mess.OnlyGrup)
+            if (!isAdmins && !isXeonBotInc) return reply('Only Admins')
+            var args1 = q.split("@")[0]
+            var args2 = q.split("@")[1]
+            if (!q.includes("@")) return reply(`Gunakan dengan cara ${command.slice(1)} *Nama Item@Item*\n\n_Contoh_\n\n${command.slice(1)} Dm Ml@List`)
+            if (!isAlreadyResponListGroup(from, db_respon_list)) return reply(`Maaf, untuk key *${args1}* belum terdaftar di group ini`)
+            if (/image/.test(mime)) {
+                let media = await Manik.downloadAndSaveMediaMessage(m.message.imageMessage || m.message.extendedTextMessage?.contextInfo.quotedMessage.imageMessage, 'image')
+              const fd = new FormData();
+                fd.append('file', fs.readFileSync(media), '.tmp', '.jpg')
+                fetch('https://telegra.ph/upload', {
+                    method: 'POST',
+                    body: fd
+                }).then(res => res.json())
+                    .then((json) => {
+                        updateResponList(from, args1, args2, true, `https://telegra.ph${json[0].src}`, db_respon_list)
+                        reply(`Sukses update list message dengan key : *${args1}*`)
+                        if (fs.existsSync(media)) fs.unlinkSync(media)
+                    })
+            } else {
+                updateResponList(from, args1, args2, false, '-', db_respon_list)
+                reply(`Sukses update respon list dengan key *${args1}*`)
+            }
+            break
+
+        case prefix+'tambah':
+            if (args.length < 3) return reply(`Gunakan dengan cara ${command.slice(1)} *angka* *angka*\n\n_Contoh_\n\n${command.slice(1)} 1 2`)
+            var nilai_one = Number(args[1])
+            var nilai_two = Number(args[2])
+            reply(`${nilai_one + nilai_two}`)
+            break
+        case prefix+'kurang':
+            if (args.length < 3) return reply(`Gunakan dengan cara ${command.slice(1)} *angka* *angka*\n\n_Contoh_\n\n${command.slice(1)} 1 2`)
+            var nilai_one = Number(args[1])
+            var nilai_two = Number(args[2])
+            reply(`${nilai_one - nilai_two}`)
+            break
+        case prefix+'kali':
+            if (args.length < 3) return reply(`Gunakan dengan cara ${command.slice(1)} *angka* *angka*\n\n_Contoh_\n\n${command.slice(1)} 1 2`)
+            var nilai_one = Number(args[1])
+            var nilai_two = Number(args[2])
+            reply(`${nilai_one * nilai_two}`)
+            break
+        case prefix+'bagi':
+            if (args.length < 3) return reply(`Gunakan dengan cara ${command.slice(1)} *angka* *angka*\n\n_Contoh_\n\n${command.slice(1)} 1 2`)
+            var nilai_one = Number(args[1])
+            var nilai_two = Number(args[2])
+            reply(`${nilai_one / nilai_two}`)
+            break
+        case 'cekproses':
+            if (!isGroup) return
+            if (!isXeonBotInc && !groupAdmins) return
+            if (!m.quoted) return reply('Reply Bukti Pembayaran!!')
+            if (!m.quoted.text) {
+            reply('Catatannya mana?')
+            }
+            if (m.quoted.text) {
+            let catad = m.quoted.text
+            let nimb = quoted.sender
+            let prses = ` *TRANSAKSI PENDING* \n\n\`\`\` TANGGAL : ${tanggal}\n JAM     : ${jam}\n STATUS  : Pending\`\`\`\n\n Catatan :\n${catad}\n\nPesanan @${nimb.split("@")[0]} sedang di proses!`
+            mentions(prses, [nimb], true)
+            }
+            break
+        case 'proses':
+            if (!m.isGroup) return
+            if (!isXeonBotInc && !groupAdmins) return
+            if (!m.quoted) return reply('Reply Bukti Pembayaran!!')
+            if (!text) return reply('Masukan Catatan Pelanggan\nContoh: proses 11 Diamond Ml | Id 12345678(1234)')
+            let numb = m.sender
+            let proses = ` *TRANSAKSI PENDING* \n\n\`\`\` TANGGAL : ${tanggal}\n JAM     : ${jam}\n STATUS  : Pending\`\`\`\n\n Catatan :\n${text}\n\nPesanan @${numb.split("@")[0]} sedang di proses!`
+            mentions(proses, numb, true)
+            m.quoted.copyNForward(`6285737134572@s.whatsapp.net`, true)
+            Manik.sendMessage(`6285737134572@s.whatsapp.net`, {text: proses })
+            break
+        case 'done':
+            if (!isXeonBotInc) return
+            if (args.length == 1) return reply('Masukan Nomor Pelanggan\nContoh: done 62xxx|catatan')
+            if (args.length == 2) return reply('Masukan Catatan Transaksi')
+            if (args[1].includes('+')) return reply(`Jangan menggunakan +`)
+            if (isNaN(parseInt(args[1]))) return reply('Harus Berupa Angka!')
+            let numbb = `${args[1]}@s.whatsapp.net`             
+            let sukses = ` *TRANSAKSI BERHASIL* \n\n\`\`\` TANGGAL : ${tanggal}\n JAM     : ${jam}\n STATUS  : Berhasil\`\`\`\n\n Catatan :\n${args[2]}\n\nTerimakasih @${numbb.split("@")[0]} Next Order ya`
+            Manik.sendMessage(`${args[1]}@s.whatsapp.net`, {text: sukses })
+            break
+case 'alive': case 'panel': case 'menu': case 'help': case '?': {
             let ownernya = ownernomer + '@s.whatsapp.net'
             let me = m.sender
             let timestampe = speed();
@@ -7512,11 +7675,11 @@ case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
 │𝗧𝗶𝗺𝗲 : ${xtime}
 │𝗗𝗮𝘁𝗲 : ${xdate}
 └┬────────────┈ ⳹
-   │✑  Please Select
-   │✑  The Button Below
+   │✑  SILAHKAN PILIH DARI
+   │✑  SALAH SATU BUTTON INI
    └─────────────┈ ⳹`
             let ments = [ownernya, me, ini_mark]        
-            let buttons = [{ buttonId: 'allmenu', buttonText: { displayText: 'All Menu' }, type: 1 },{ buttonId: 'command', buttonText: { displayText: 'List Menu' }, type: 1 },{ buttonId: 'sc', buttonText: { displayText: 'Script' }, type: 1 }]
+            let buttons = [{ buttonId: 'command', buttonText: { displayText: 'LIST MENU' }, type: 1 },{ buttonId: 'owner', buttonText: { displayText: 'OWNER' }, type: 1 },{ buttonId: 'donate', buttonText: { displayText: 'DONATE' }, type: 1 }]
             let buttonMessage = {
   document: fs.readFileSync('./XeonMedia/theme/cheems.xlsx'),
   fileName : `${wm}`,
@@ -7548,7 +7711,7 @@ case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
 								"rows": [
 									{
 										"title": "Other ☕",
-										"description": "Displays The List Of Other Features",
+										"description": "Menampilkan Daftar Fitur Lainnya",
 										"rowId": `${prefix}othermenu`
 									}
 								]
@@ -7558,107 +7721,107 @@ case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
 								"rows": [
 									{
 										"title": "All Menu 🥀",
-										"description": "Displays The List Of All The Features!",
+										"description": "SEMUA VITUR BOT !",
 										"rowId": `${prefix}allmenu`
 									},
 									{
 										"title": "Owner Menu 💠",
-										"description": "Displays The List Of Owner Features",
+										"description": "OWNER MENU",
 										"rowId": `${prefix}ownermenu`
 										},
 									{
 										"title": "Group Menu ✨",
-										"description": "Displays The List Of Main Features",
+										"description": "GROUP MENU",
 										"rowId": `${prefix}groupmenu`
 										},
 										{
 										"title": "Maker Menu 🌈",
-										"description": "Displays The List Of Logo Making Features",
+										"description": "MAKER MENU",
 										"rowId": `${prefix}makermenu`
 									},
 									{
 										"title": "Sound Menu 🎵",
-										"description": "Displays The List Of Sound Features",
+										"description": "SOUND MENU",
 										"rowId": `${prefix}soundmenu`
 									},
 									{
 										"title": "Download Menu ↘️",
-										"description": "Displays The List Of Download Features",
+										"description": "DOWNLOAD MENU",
 										"rowId": `${prefix}downloadmenu`
 									},
 									{
 										"title": "Sticker Menu 🃏",
-										"description": "Displays The List Of Sticker Features",
+										"description": "STICKER MENU",
 										"rowId": `${prefix}stickermenu`
 									},
 									{
 										"title": "Search Menu 🔎",
-										"description": "Displays The List Of Searching Features",
+										"description": "SEARCH MENU",
 										"rowId": `${prefix}searchmenu`
 									},
 									{
 										"title": "Random Image Menu 🌆",
-										"description": "Displays The List Of Random Image Features",
+										"description": "RANDOM IMAGE MENU",
 										"rowId": `${prefix}randomimagemenu`
 									},
 									{
 										"title": "Random Video Menu 🌆",
-										"description": "Displays The List Of Random Video Features",
+										"description": "RANDOM VIDEO MENU",
 										"rowId": `${prefix}randomvideomenu`
 									},
 									{
 										"title": "Image Effect Menu 🖼️",
-										"description": "Displays The List Of Image Effect Features",
+										"description": "IMAGE EFFECT MENU",
 										"rowId": `${prefix}imageeffectmenu`
 									},
 										{
 											"title": "Anime Menu 😘",
-										"description": "Displays The List Of Random Anime Features",
+										"description": "ANIME MENU",
 										"rowId": `${prefix}animemenu`
 										},
 										{
 											"title": "Emote Menu 😀",
-										"description": "Displays The List Of Emote Features",
+										"description": "EMOTE MENU",
 										"rowId": `${prefix}emotemenu`
 										},
 										{
 										"title": "Anime Sticker Menu ☺️",
-										"description": "Displays The List Of Anime Sticker Features",
+										"description": "STICKER MENU",
 										"rowId": `${prefix}animestickermenu`
 									     },
 									{
 										"title": "Nsfw Menu 🤓",
-										"description": "Displays The List Of Nsfe Features",
+										"description": "WIBU MENU",
 										"rowId": `${prefix}nsfwmenu`
 									     },
 										{
 											"title": "Fun Menu 🕺",
-										"description": "Displays The List Of Fun Features",
+										"description": "FUN MENU",
 										"rowId": `${prefix}funmenu`
 										},
 										{
 										"title": "Game Menu 🎮",
-										"description": "Displays The List Of Game Features",
+										"description": "GAME MENU",
 										"rowId": `${prefix}gamemenu`
 									},
 										{
 											"title": "Convert Menu ⚒️",
-										"description": "Displays The List Of Convert Features",
+										"description": "CONVERT MENU",
 										"rowId": `${prefix}convertmenu`
 										},
 										{
 											"title": "Database Menu ♻️",
-										"description": "Displays The List Of Database Features",
+										"description": "DATABASE MENU",
 										"rowId": `${prefix}databasemenu`
 										},
 										{
 										"title": "Other Menu 🐸",
-										"description": "Displays The List Miscellaneous Features",
+										"description": "other MENU",
 										"rowId": `${prefix}othermenu`
 									     },
 										{
 										"title": "War Menu☣️",
-										"description": "Displays The List Of War Features",
+										"description": "BUG MENU",
 										"rowId": `${prefix}warmenu`
 									}
 								]
@@ -7668,7 +7831,7 @@ case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
 								"rows": [
 									{
 										"title": "Anonymous Chat Menu 🏻‍♂️",
-										"description": "Displays The List Of Anonymous Chat Features",
+										"description": "anonymous menu",
 										"rowId": `${prefix}anonymousmenu`
 									}
 								]
@@ -7678,14 +7841,14 @@ case 'alive': case 'panel': case 'list': case 'menu': case 'help': case '?': {
 								"rows": [
 									{
 										"title": "Thanks To ❤️",
-										"description": "Displays The List Of Credit Of The Bot !!",
-										"rowId": `${prefix}tqtt`
+										"description": "YANG MEMBANTU MEMBUAT SCRIP INI !!",
+										"rowId": `${prefix}tqto`
 									}
 								]
 							}
 						]
 const listMessage = {
-  text: "Please choose the menu",
+  text: "SILAHKAN PILIH MENU NYA",
   footer: `${botname}\n📍YouTube: ${websitex}\n🍜Script: ${botscript}`,
   title: `Hi 👋 ${pushname}`,
   buttonText: "Menu",
@@ -7720,6 +7883,14 @@ const buttonMessage = {
 ╠ ${prefix}creategroup [name]
 ╠ ${prefix}block [tag/number]
 ╠ ${prefix}unblock [tag/number]
+╠═══════✪ STORE
+╠${prefix}addlist
+╠${prefix}dellist
+╠${prefix}tambah
+╠${prefix}bagi
+╠${prefix}kurang
+╠${prefix}done
+╠${prefix}proses
 ╠═══════✪ GROUP 	        
 ╠${prefix}grouplink
 ╠${prefix}ephemeral [option]
@@ -7734,7 +7905,7 @@ const buttonMessage = {
 ╠${prefix}kick [reply/tag]
 ╠${prefix}hidetag [text]
 ╠${prefix}tagall [text]
-╠${prefix}antilinkgc [on/off]
+╠${prefix}antilink [on/off]
 ╠${prefix}antilinktg [on/off]
 ╠${prefix}antilinktt [on/off]
 ╠${prefix}antilinkytch [on/off]
@@ -9473,8 +9644,8 @@ const buttonMessage = {
 const sendMsg = await XeonBotInc.sendMessage(m.chat, buttonMessage)
 }
 break
-case 'warmenu':{
-var unicorn = await getBuffer(picak+'War Menu')
+case 'bugmenu':{
+var unicorn = await getBuffer(picak+'Bugmenu')
 
 const buttons = [
   {buttonId: 'script', buttonText: {displayText: 'Script 🔖'}, type: 1},
